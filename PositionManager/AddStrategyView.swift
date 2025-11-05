@@ -24,7 +24,7 @@ struct AddStrategyView: View {
     @State private var contracts: String = ""
     @State private var exerciseStatus: ExerciseStatus = .unknown
     
-    // Validation states
+    // 缺失的错误状态（用于保存前校验）
     @State private var strikePriceError: Bool = false
     @State private var optionPriceError: Bool = false
     @State private var avgPriceError: Bool = false
@@ -61,11 +61,8 @@ struct AddStrategyView: View {
                         TextField("Strike Price", text: $strikePrice)
                             .keyboardType(.decimalPad)
                             .focused($focusedField, equals: .strikePrice)
-                            .onChange(of: strikePrice) { oldValue, newValue in
-                                validateStrikePrice()
-                            }
                         
-                        if strikePriceError {
+                        if !strikePrice.isEmpty && !strikePrice.isValidPositiveNumber {
                             Text("Please enter a valid positive number")
                                 .font(.caption)
                                 .foregroundStyle(.red)
@@ -76,11 +73,8 @@ struct AddStrategyView: View {
                         TextField("Option Premium", text: $optionPrice)
                             .keyboardType(.decimalPad)
                             .focused($focusedField, equals: .optionPrice)
-                            .onChange(of: optionPrice) { oldValue, newValue in
-                                validateOptionPrice()
-                            }
                         
-                        if optionPriceError {
+                        if !optionPrice.isEmpty && !optionPrice.isValidPositiveNumber {
                             Text("Please enter a valid positive number")
                                 .font(.caption)
                                 .foregroundStyle(.red)
@@ -93,11 +87,8 @@ struct AddStrategyView: View {
                         TextField("Average Price Per Share", text: $averagePricePerShare)
                             .keyboardType(.decimalPad)
                             .focused($focusedField, equals: .avgPrice)
-                            .onChange(of: averagePricePerShare) { oldValue, newValue in
-                                validateAvgPrice()
-                            }
                         
-                        if avgPriceError {
+                        if !averagePricePerShare.isEmpty && !averagePricePerShare.isValidPositiveNumber {
                             Text("Please enter a valid positive number")
                                 .font(.caption)
                                 .foregroundStyle(.red)
@@ -108,11 +99,8 @@ struct AddStrategyView: View {
                         TextField("Number of Contracts", text: $contracts)
                             .keyboardType(.numberPad)
                             .focused($focusedField, equals: .contracts)
-                            .onChange(of: contracts) { oldValue, newValue in
-                                validateContracts()
-                            }
                         
-                        if contractsError {
+                        if !contracts.isEmpty && !contracts.isValidPositiveInteger {
                             Text("Please enter a valid positive integer")
                                 .font(.caption)
                                 .foregroundStyle(.red)
@@ -174,13 +162,10 @@ struct AddStrategyView: View {
     
     // Validation functions
     private func validateStrikePrice() {
-        // Don't show error if field is empty
         if strikePrice.isEmpty {
             strikePriceError = false
             return
         }
-        
-        // Show error if value is invalid or not positive
         if let value = Double(strikePrice), value > 0 {
             strikePriceError = false
         } else {
@@ -189,13 +174,10 @@ struct AddStrategyView: View {
     }
     
     private func validateOptionPrice() {
-        // Don't show error if field is empty
         if optionPrice.isEmpty {
             optionPriceError = false
             return
         }
-        
-        // Show error if value is invalid or not positive
         if let value = Double(optionPrice), value > 0 {
             optionPriceError = false
         } else {
@@ -204,13 +186,10 @@ struct AddStrategyView: View {
     }
     
     private func validateAvgPrice() {
-        // Don't show error if field is empty
         if averagePricePerShare.isEmpty {
             avgPriceError = false
             return
         }
-        
-        // Show error if value is invalid or not positive
         if let value = Double(averagePricePerShare), value > 0 {
             avgPriceError = false
         } else {
@@ -219,13 +198,10 @@ struct AddStrategyView: View {
     }
     
     private func validateContracts() {
-        // Don't show error if field is empty
         if contracts.isEmpty {
             contractsError = false
             return
         }
-        
-        // Show error if value is invalid or not positive
         if let value = Int(contracts), value > 0 {
             contractsError = false
         } else {
@@ -235,14 +211,10 @@ struct AddStrategyView: View {
     
     private var isFormValid: Bool {
         !symbol.isEmpty &&
-        !strikePrice.isEmpty &&
-        !optionPrice.isEmpty &&
-        !averagePricePerShare.isEmpty &&
-        !contracts.isEmpty &&
-        !strikePriceError &&
-        !optionPriceError &&
-        !avgPriceError &&
-        !contractsError
+        strikePrice.isValidPositiveNumber &&
+        optionPrice.isValidPositiveNumber &&
+        averagePricePerShare.isValidPositiveNumber &&
+        contracts.isValidPositiveInteger
     }
     
     private func saveStrategy() {
@@ -257,7 +229,6 @@ struct AddStrategyView: View {
             return
         }
         
-        // Parse values (we know they're valid at this point)
         guard let strikePriceValue = Double(strikePrice),
               let optionPriceValue = Double(optionPrice),
               let avgPriceValue = Double(averagePricePerShare),
@@ -286,7 +257,6 @@ struct AddStrategyView: View {
                 contracts: contractsValue,
                 exerciseStatus: exerciseStatus
             )
-            
             modelContext.insert(newStrategy)
         }
         

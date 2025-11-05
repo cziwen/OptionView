@@ -177,67 +177,91 @@ struct PortfolioView: View {
     
     var body: some View {
         NavigationStack {
-            Group {
-                if portfolioSummaries.isEmpty {
-                    if searchText.isEmpty {
-                        ContentUnavailableView(
-                            "No Portfolio Data",
-                            systemImage: "briefcase",
-                            description: Text("Add some strategies in 'My Strategy' to see your portfolio")
-                        )
-                    } else {
-                        ContentUnavailableView.search(text: searchText)
+            VStack(spacing: 0) {
+                // 自定义搜索栏
+                HStack(spacing: 12) {
+                    // 搜索框
+                    HStack {
+                        Image(systemName: "magnifyingglass")
+                            .foregroundStyle(.secondary)
+                        
+                        TextField("Search by symbol", text: $searchText)
+                            .textFieldStyle(.plain)
+                            .autocorrectionDisabled()
+                            .textInputAutocapitalization(.characters)
+                        
+                        if !searchText.isEmpty {
+                            Button {
+                                searchText = ""
+                            } label: {
+                                Image(systemName: "xmark.circle.fill")
+                                    .foregroundStyle(.secondary)
+                            }
+                        }
                     }
-                } else {
-                    VStack(spacing: 0) {
-                        // 日期筛选器
-                        dateFilterBar
-                            .padding(.horizontal)
-                            .padding(.vertical, 8)
-                            .background(Color(.systemGroupedBackground))
-                        
-                        Divider()
-                        
-                        // 总览卡片
-                        portfolioOverviewCard
-                            .padding(.horizontal)
-                            .padding(.top, 12)
-                            .padding(.bottom, 12)
-                            .background(Color(.systemGroupedBackground))
-                        
-                        Divider()
-                        
-                        // 排序菜单
-                        sortingMenu
-                            .padding(.horizontal)
-                            .padding(.vertical, 8)
-                            .background(Color(.systemGroupedBackground))
-                        
-                        Divider()
-                        
-                        // 投资组合列表
-                        ScrollView {
-                            LazyVStack(spacing: 12) {
-                                ForEach(portfolioSummaries) { summary in
-                                    NavigationLink(destination: PortfolioDetailView(summary: summary)) {
+                    .padding(8)
+                    .background(Color(.systemGray6))
+                    .clipShape(RoundedRectangle(cornerRadius: 10))
+                }
+                .padding(.horizontal)
+                .padding(.vertical, 8)
+                .background(Color(.systemBackground))
+                
+                Divider()
+                
+                // 主内容区
+                Group {
+                    if portfolioSummaries.isEmpty {
+                        if searchText.isEmpty {
+                            ContentUnavailableView(
+                                "No Portfolio Data",
+                                systemImage: "briefcase",
+                                description: Text("Add some strategies in 'My Strategy' to see your portfolio")
+                            )
+                        } else {
+                            ContentUnavailableView.search(text: searchText)
+                        }
+                    } else {
+                        VStack(spacing: 0) {
+                            // 日期筛选器
+                            dateFilterBar
+                                .padding(.horizontal)
+                                .padding(.vertical, 8)
+                                .background(Color(.systemGroupedBackground))
+                            
+                            Divider()
+                            
+                            // 总览卡片
+                            portfolioOverviewCard
+                                .padding(.horizontal)
+                                .padding(.top, 12)
+                                .padding(.bottom, 12)
+                                .background(Color(.systemGroupedBackground))
+                            
+                            Divider()
+                            
+                            // 排序菜单
+                            sortingMenu
+                                .padding(.horizontal)
+                                .padding(.vertical, 8)
+                                .background(Color(.systemGroupedBackground))
+                            
+                            Divider()
+                            
+                            // 投资组合列表
+                            ScrollView {
+                                LazyVStack(spacing: 12) {
+                                    ForEach(portfolioSummaries) { summary in
                                         PortfolioCard(summary: summary)
                                     }
-                                    .buttonStyle(.plain)
                                 }
+                                .padding()
                             }
-                            .padding()
                         }
                     }
                 }
             }
-            .navigationTitle("Portfolio")
-            .searchable(
-                text: $searchText,
-                placement: .navigationBarDrawer(displayMode: .always),
-                prompt: "Search by symbol"
-            )
-            .autocorrectionDisabled()
-            .textInputAutocapitalization(.characters)
+            .navigationBarTitleDisplayMode(.inline)
         }
     }
     
@@ -476,15 +500,28 @@ enum PortfolioSortField {
 // MARK: - Portfolio Card
 struct PortfolioCard: View {
     let summary: PortfolioSummary
+    @State private var showingDetail = false
     
     var body: some View {
         VStack(spacing: 0) {
             // 标题栏
             HStack {
                 VStack(alignment: .leading, spacing: 4) {
-                    Text(summary.symbol)
-                        .font(.title2.bold())
-                        .foregroundStyle(.primary)
+                    HStack(spacing: 6) {
+                        Text(summary.symbol)
+                            .font(.title2.bold())
+                            .foregroundStyle(.primary)
+                        
+                        // 详情按钮
+                        Button {
+                            showingDetail = true
+                        } label: {
+                            Image(systemName: "info.circle.fill")
+                                .font(.title3)
+                                .foregroundStyle(.blue)
+                        }
+                        .buttonStyle(.plain)
+                    }
                     
                     Text("\(summary.strategies.count) \(summary.strategies.count == 1 ? "Strategy" : "Strategies")")
                         .font(.subheadline)
@@ -539,6 +576,11 @@ struct PortfolioCard: View {
         .background(Color(.systemBackground))
         .clipShape(RoundedRectangle(cornerRadius: 12))
         .shadow(color: .black.opacity(0.1), radius: 4, x: 0, y: 2)
+        .sheet(isPresented: $showingDetail) {
+            NavigationStack {
+                PortfolioDetailView(summary: summary)
+            }
+        }
     }
     
     private func formatPrice(_ price: Double) -> String {

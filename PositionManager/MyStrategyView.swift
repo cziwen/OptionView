@@ -76,66 +76,93 @@ struct MyStrategyView: View {
     
     var body: some View {
         NavigationStack {
-            Group {
-                if strategies.isEmpty {
-                    if searchText.isEmpty {
-                        ContentUnavailableView(
-                            "No Strategies",
-                            systemImage: "chart.line.uptrend.xyaxis",
-                            description: Text("Tap the + button to add an option strategy")
-                        )
-                    } else {
-                        ContentUnavailableView.search(text: searchText)
-                    }
-                } else {
-                    VStack(spacing: 0) {
-                        // 排序菜单栏
-                        sortingMenu
-                            .padding(.horizontal)
-                            .padding(.vertical, 8)
-                            .background(Color(.systemGroupedBackground))
+            VStack(spacing: 0) {
+                // 自定义搜索栏和按钮在同一行
+                HStack(spacing: 12) {
+                    // 搜索框
+                    HStack {
+                        Image(systemName: "magnifyingglass")
+                            .foregroundStyle(.secondary)
                         
-                        Divider()
+                        TextField("Search by symbol", text: $searchText)
+                            .textFieldStyle(.plain)
+                            .autocorrectionDisabled()
+                            .textInputAutocapitalization(.characters)
                         
-                        // 策略列表
-                        ScrollView {
-                            LazyVStack(spacing: 12) {
-                                ForEach(strategies) { strategy in
-                                    StrategyCard(
-                                        strategy: strategy,
-                                        onDelete: {
-                                            strategyToDelete = strategy
-                                            showingDeleteConfirmation = true
-                                        },
-                                        onEdit: {
-                                            strategyToEdit = strategy
-                                            showingEditSheet = true
-                                        }
-                                    )
-                                }
+                        if !searchText.isEmpty {
+                            Button {
+                                searchText = ""
+                            } label: {
+                                Image(systemName: "xmark.circle.fill")
+                                    .foregroundStyle(.secondary)
                             }
-                            .padding()
+                        }
+                    }
+                    .padding(8)
+                    .background(Color(.systemGray6))
+                    .clipShape(RoundedRectangle(cornerRadius: 10))
+                    
+                    // 添加按钮
+                    Button {
+                        showingAddSheet = true
+                    } label: {
+                        Image(systemName: "plus.circle.fill")
+                            .font(.title2)
+                            .foregroundStyle(.blue)
+                    }
+                }
+                .padding(.horizontal)
+                .padding(.vertical, 8)
+                .background(Color(.systemBackground))
+                
+                Divider()
+                
+                // 主内容区
+                Group {
+                    if strategies.isEmpty {
+                        if searchText.isEmpty {
+                            ContentUnavailableView(
+                                "No Strategies",
+                                systemImage: "chart.line.uptrend.xyaxis",
+                                description: Text("Tap the + button to add an option strategy")
+                            )
+                        } else {
+                            ContentUnavailableView.search(text: searchText)
+                        }
+                    } else {
+                        VStack(spacing: 0) {
+                            // 排序菜单栏
+                            sortingMenu
+                                .padding(.horizontal)
+                                .padding(.vertical, 8)
+                                .background(Color(.systemGroupedBackground))
+                            
+                            Divider()
+                            
+                            // 策略列表
+                            ScrollView {
+                                LazyVStack(spacing: 12) {
+                                    ForEach(strategies) { strategy in
+                                        StrategyCard(
+                                            strategy: strategy,
+                                            onDelete: {
+                                                strategyToDelete = strategy
+                                                showingDeleteConfirmation = true
+                                            },
+                                            onEdit: {
+                                                strategyToEdit = strategy
+                                                showingEditSheet = true
+                                            }
+                                        )
+                                    }
+                                }
+                                .padding()
+                            }
                         }
                     }
                 }
             }
-            .navigationTitle("My Strategy")
-            .searchable(
-                text: $searchText,
-                placement: .navigationBarDrawer(displayMode: .always),
-                prompt: "Search by symbol"
-            )
-            .autocorrectionDisabled()
-            .textInputAutocapitalization(.characters)
-            .toolbar {
-                ToolbarItem(placement: .primaryAction) {
-                    Button {
-                        showingAddSheet = true
-                    } label: {
-                        Label("Add Strategy", systemImage: "plus")
-                    }
-                }
-            }
+            .navigationBarTitleDisplayMode(.inline)
             .sheet(isPresented: $showingAddSheet) {
                 AddStrategyView(strategyToEdit: nil)
             }
@@ -148,12 +175,12 @@ struct MyStrategyView: View {
                     strategyToEdit = nil
                 }
             }
-            .confirmationDialog(
+            .alert(
                 "Delete Option Strategy",
                 isPresented: $showingDeleteConfirmation,
                 presenting: strategyToDelete
             ) { strategy in
-                Button("Delete \(strategy.symbol) Strategy", role: .destructive) {
+                Button("Delete", role: .destructive) {
                     deleteStrategy(strategy)
                 }
                 Button("Cancel", role: .cancel) {
@@ -278,79 +305,78 @@ struct StrategyCard: View {
     let onEdit: () -> Void
     
     var body: some View {
-        Button(action: onEdit) {
-            VStack(spacing: 0) {
-                // 标题栏
-                HStack {
-                    VStack(alignment: .leading, spacing: 4) {
-                        HStack(spacing: 6) {
-                            Text(strategy.symbol)
-                                .font(.title2.bold())
-                                .foregroundStyle(.primary)
-                            
-                            // 编辑图标提示
-                            Image(systemName: "pencil.circle.fill")
-                                .font(.subheadline)
-                                .foregroundStyle(.blue)
-                                .opacity(0.7)
-                        }
+        VStack(spacing: 0) {
+            // 标题栏
+            HStack {
+                VStack(alignment: .leading, spacing: 4) {
+                    HStack(spacing: 6) {
+                        Text(strategy.symbol)
+                            .font(.title2.bold())
+                            .foregroundStyle(.primary)
                         
-                        Text(strategy.optionType.displayName)
-                            .font(.subheadline)
-                            .foregroundStyle(.secondary)
+                        // 编辑按钮
+                        Button(action: onEdit) {
+                            Image(systemName: "pencil.circle.fill")
+                                .font(.title3)
+                                .foregroundStyle(.blue)
+                        }
+                        .buttonStyle(.plain)
                     }
                     
-                    Spacer()
-                    
-                    // 行权状态标签
-                    exerciseStatusBadge
-                    
-                    // 删除按钮
-                    Button(role: .destructive, action: onDelete) {
-                        Image(systemName: "trash")
-                            .foregroundStyle(.red)
-                            .imageScale(.large)
-                    }
-                    .buttonStyle(.plain)
+                    Text(strategy.optionType.displayName)
+                        .font(.subheadline)
+                        .foregroundStyle(.secondary)
                 }
-                .padding()
-                .background(Color(.secondarySystemGroupedBackground))
+                
+                Spacer()
+                
+                // 行权状态标签
+                exerciseStatusBadge
+                
+                // 删除按钮
+                Button(role: .destructive, action: onDelete) {
+                    Image(systemName: "trash")
+                        .foregroundStyle(.red)
+                        .imageScale(.large)
+                }
+                .buttonStyle(.plain)
+            }
+            .padding()
+            .background(Color(.secondarySystemGroupedBackground))
+            
+            Divider()
+            
+            // 详细信息网格
+            VStack(spacing: 0) {
+                // 第一行
+                HStack(spacing: 0) {
+                    InfoCell(title: "Expiration", value: formattedDate(strategy.expirationDate))
+                    Divider()
+                    InfoCell(title: "Strike Price", value: formatPrice(strategy.strikePrice))
+                }
                 
                 Divider()
                 
-                // 详细信息网格
-                VStack(spacing: 0) {
-                    // 第一行
-                    HStack(spacing: 0) {
-                        InfoCell(title: "Expiration", value: formattedDate(strategy.expirationDate))
-                        Divider()
-                        InfoCell(title: "Strike Price", value: formatPrice(strategy.strikePrice))
-                    }
-                    
+                // 第二行
+                HStack(spacing: 0) {
+                    InfoCell(title: "Premium", value: formatPrice(strategy.optionPrice))
                     Divider()
-                    
-                    // 第二行
-                    HStack(spacing: 0) {
-                        InfoCell(title: "Premium", value: formatPrice(strategy.optionPrice))
-                        Divider()
-                        InfoCell(title: "Avg Price", value: formatPrice(strategy.averagePricePerShare))
-                    }
-                    
+                    InfoCell(title: "Avg Price", value: formatPrice(strategy.averagePricePerShare))
+                }
+                
+                Divider()
+                
+                // 第三行
+                HStack(spacing: 0) {
+                    InfoCell(title: "Contracts", value: "\(strategy.contracts)")
                     Divider()
-                    
-                    // 第三行
-                    HStack(spacing: 0) {
-                        InfoCell(title: "Contracts", value: "\(strategy.contracts)")
-                        Divider()
-                        InfoCell(title: "Total Value", value: formatPrice(strategy.optionPrice * Double(strategy.contracts) * 100))
-                    }
+                    InfoCell(title: "Total Value", value: formatPrice(strategy.optionPrice * Double(strategy.contracts) * 100))
                 }
             }
-            .background(Color(.systemBackground))
-            .clipShape(RoundedRectangle(cornerRadius: 12))
-            .shadow(color: .black.opacity(0.1), radius: 4, x: 0, y: 2)
         }
-        .buttonStyle(.plain)
+        .background(Color(.systemBackground))
+        .clipShape(RoundedRectangle(cornerRadius: 12))
+        .shadow(color: .black.opacity(0.1), radius: 4, x: 0, y: 2)
     }
     
     private var exerciseStatusBadge: some View {

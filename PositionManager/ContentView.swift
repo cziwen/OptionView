@@ -25,7 +25,7 @@ struct ContentView: View {
                 }
                 .tag(1)
             
-            PlaceholderView(title: "Analytics")
+            AnalyticsView()
                 .tabItem {
                     Label("Analytics", systemImage: "chart.bar")
                 }
