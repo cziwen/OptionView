@@ -13,8 +13,8 @@ struct PortfolioSummary: Identifiable {
     let id = UUID()
     let symbol: String
     let totalInvestment: Double // 总投资（实际投入的资金/保证金）
-    let cashWhenDue: Double // 到期时收到的现金（不管盈亏）
-    let profitLoss: Double // 实际盈亏 = Cash When Due - Total Investment
+    let finalSettlementCash: Double // 最终结算现金（包含保证金成本和盈亏）
+    let profitLoss: Double // 实际盈亏 = Final Settlement Cash - Total Investment
     let profitLossPercentage: Double // 盈亏百分比
     let premium: Double // 期权总收入（权利金）
     let premiumPercentage: Double // 权利金占投资的百分比
@@ -88,142 +88,135 @@ struct PortfolioView: View {
             // 检查是否有 Naked Call（无限风险）
             let hasNakedCall = symbolStrategies.contains { $0.optionType == .nakedCall }
             
-            // 计算 Cash When Due（到期时收到的现金，不管盈亏）
-            let cashWhenDue = symbolStrategies.reduce(0.0) { sum, strategy in
-                let quantity = Double(strategy.contracts) * 100
-                let strikeValue = strategy.strikePrice * quantity
-                let premium = strategy.optionPrice * quantity
-                
-                switch strategy.exerciseStatus {
-                case .yes:
-                    // 被行权：实际发生的现金流
-                    switch strategy.optionType {
-                    case .coveredCall:
-                        // Covered Call 被行权：收到执行价 + 权利金
-                        return sum + strikeValue + premium
-                        
-                    case .cashSecuredPut:
-                        // Cash-Secured Put 被行权：只收到权利金
-                        // Cash When Due = Premium
-                        return sum + premium
-                        
-                    case .nakedCall:
-                        // Naked Call 被行权：使用实际市场价格计算
-                        if let marketPrice = strategy.exerciseMarketPrice {
-                            // Cash = Premium - Market Price × Quantity
-                            return sum + premium - (marketPrice * quantity)
-                        } else {
-                            // 没有输入市场价格，只计算权利金
-                            return sum + premium
-                        }
-                        
-                    case .nakedPut:
-                        // Naked Put 被行权：支付执行价，但收到权利金
-                        return sum + premium - strikeValue
-                    }
-                    
-                case .no:
-                    // 未被行权：现金流处理
-                    switch strategy.optionType {
-                    case .coveredCall:
-                        // Covered Call 未行权：只收到权利金
-                        return sum + premium
-                        
-                    case .cashSecuredPut:
-                        // Cash-Secured Put 未行权：收回投资 + 权利金
-                        // Cash When Due = Investment + Premium
-                        return sum + strikeValue + premium
-                        
-                    case .nakedCall, .nakedPut:
-                        // 其他类型未行权：只保留权利金
-                        return sum + premium
-                    }
-                    
-                case .unknown:
-                    // 不确定：不计算
-                    return sum
-                }
-            }
+            // 计算 Final Settlement Cash 和 P/L
+            // 注意：Final Settlement Cash 是按照您提供的公式计算的现金结算金额
+            var totalFinalSettlementCash = 0.0
+            var totalProfitLoss = 0.0
             
-            // 总现金流就是 cashWhenDue（已经包含了权利金）
-            let totalCashWhenDue = cashWhenDue
-            
-            // 计算盈亏（需要考虑未行权时的股票未实现盈亏）
-            let profitLoss = symbolStrategies.reduce(0.0) { sum, strategy in
-                let quantity = Double(strategy.contracts) * 100
-                let premium = strategy.optionPrice * quantity
+            for strategy in symbolStrategies {
+                let quantity = Double(strategy.contracts) * 100  // N
+                let premium = strategy.optionPrice * quantity    // N × P
+                let strikeValue = strategy.strikePrice * quantity // N × K
+                let stockCost = strategy.averagePricePerShare * quantity // N × S₀
                 
-                switch strategy.exerciseStatus {
-                case .yes:
-                    // 被行权：按实际发生的现金流计算
-                    switch strategy.optionType {
-                    case .coveredCall:
-                        let strikeValue = strategy.strikePrice * quantity
-                        let stockCost = strategy.averagePricePerShare * quantity
-                        // P/L = Strike Value + Premium - Stock Cost
-                        return sum + (strikeValue + premium - stockCost)
+                switch strategy.optionType {
+                case .coveredCall:
+                    // Covered Call 的 Final Settlement Cash 公式：
+                    // 未行权：N × P
+                    // 被行权：N(P + K)
+                    switch strategy.exerciseStatus {
+                    case .yes:
+                        // 被行权：Final Settlement Cash = N(P + K)
+                        let finalCash = premium + strikeValue
+                        totalFinalSettlementCash += finalCash
+                        // P/L = Final Cash - Stock Cost
+                        totalProfitLoss += finalCash - stockCost
                         
-                    case .cashSecuredPut:
-                        // Cash-Secured Put 被行权：
-                        // P/L = Market Price - Strike Price + Premium
-                        if let marketPrice = strategy.exerciseMarketPrice {
-                            let marketValue = marketPrice * quantity
-                            let strikeValue = strategy.strikePrice * quantity
-                            // P/L = (Market Price - Strike Price) × Quantity + Premium
-                            return sum + ((marketValue - strikeValue) + premium)
-                        } else {
-                            // 没有市场价格，无法准确计算，只计算权利金
-                            return sum + premium
-                        }
+                    case .no:
+                        // 未行权：Final Settlement Cash = N × P
+                        let finalCash = premium
+                        totalFinalSettlementCash += finalCash
                         
-                    case .nakedCall:
-                        if let marketPrice = strategy.exerciseMarketPrice {
-                            let marketValue = marketPrice * quantity
-                            // P/L = Premium - Market Value
-                            return sum + (premium - marketValue)
-                        } else {
-                            return sum + premium
-                        }
-                        
-                    case .nakedPut:
-                        let strikeValue = strategy.strikePrice * quantity
-                        // P/L = Premium - Strike Value（最大亏损）
-                        return sum + (premium - strikeValue)
-                    }
-                    
-                case .no:
-                    // 未行权：考虑股票的未实现盈亏
-                    switch strategy.optionType {
-                    case .coveredCall:
-                        // Covered Call 未行权：
-                        // P/L = (Current Price - Avg Price) × Quantity + Premium
-                        // 或者说：P/L = Current Value - (Cost - Premium)
+                        // P/L 包含股票的未实现盈亏
                         if let currentPrice = strategy.currentMarketPrice {
-                            let stockCost = strategy.averagePricePerShare * quantity
                             let currentValue = currentPrice * quantity
-                            // P/L = (Current Value - Stock Cost) + Premium
-                            return sum + ((currentValue - stockCost) + premium)
+                            let profitLoss = (currentValue - stockCost) + premium
+                            totalProfitLoss += profitLoss
                         } else {
                             // 没有当前价格，只计算权利金
-                            return sum + premium
+                            totalProfitLoss += premium
                         }
                         
-                    case .cashSecuredPut:
-                        // Cash-Secured Put 未行权：
-                        // P/L = Premium
-                        return sum + premium
-                        
-                    case .nakedCall, .nakedPut:
-                        // 其他类型未行权：只保留权利金
-                        return sum + premium
+                    case .unknown:
+                        break
                     }
                     
-                case .unknown:
-                    // 不确定：不计算
-                    return sum
+                case .cashSecuredPut:
+                    // Cash-Secured Put 的 Final Settlement Cash 公式：
+                    // 未行权：N × P + Collateral (where Collateral = N × K)
+                    // 被行权：N × P
+                    let collateral = strikeValue  // N × K
+                    
+                    switch strategy.exerciseStatus {
+                    case .yes:
+                        // 被行权：Final Settlement Cash = N × P
+                        let finalCash = premium
+                        totalFinalSettlementCash += finalCash
+                        
+                        // P/L 需要考虑购买的股票当前价值
+                        if let marketPrice = strategy.exerciseMarketPrice {
+                            let marketValue = marketPrice * quantity
+                            // 投入 collateral 购买股票，收到 premium，股票价值 marketValue
+                            let profitLoss = (marketValue + premium) - collateral
+                            totalProfitLoss += profitLoss
+                        } else {
+                            // 没有市场价格，最坏情况假设股票价值为 0
+                            let profitLoss = premium - collateral
+                            totalProfitLoss += profitLoss
+                        }
+                        
+                    case .no:
+                        // 未行权：Final Settlement Cash = N × P + Collateral
+                        let finalCash = premium + collateral
+                        totalFinalSettlementCash += finalCash
+                        
+                        // P/L 只是权利金（抵押品返还）
+                        let profitLoss = premium
+                        totalProfitLoss += profitLoss
+                        
+                    case .unknown:
+                        break
+                    }
+                    
+                case .nakedCall:
+                    let marginCost = strategy.getMarginCost()
+                    
+                    // Naked Call P/L 公式: P/L = N[P - max(0, S_T - K)]
+                    // Final Settlement Cash = margin cost + P/L
+                    let marketPrice = strategy.exerciseStatus == .yes 
+                        ? strategy.exerciseMarketPrice 
+                        : strategy.currentMarketPrice
+                    
+                    if let price = marketPrice {
+                        let profitOrLoss = max(0, price - strategy.strikePrice)
+                        let profitLoss = quantity * (strategy.optionPrice - profitOrLoss)
+                        let finalCash = marginCost + profitLoss
+                        totalFinalSettlementCash += finalCash
+                        totalProfitLoss += profitLoss
+                    } else {
+                        // 没有价格，只计算权利金
+                        let finalCash = marginCost + premium
+                        totalFinalSettlementCash += finalCash
+                        totalProfitLoss += premium
+                    }
+                    
+                case .nakedPut:
+                    let marginCost = strategy.getMarginCost()
+                    
+                    // Naked Put P/L 公式: P/L = N[P - max(0, K - S_T)]
+                    // Final Settlement Cash = margin cost + P/L
+                    let marketPrice = strategy.exerciseStatus == .yes 
+                        ? strategy.exerciseMarketPrice 
+                        : strategy.currentMarketPrice
+                    
+                    if let price = marketPrice {
+                        let profitOrLoss = max(0, strategy.strikePrice - price)
+                        let profitLoss = quantity * (strategy.optionPrice - profitOrLoss)
+                        let finalCash = marginCost + profitLoss
+                        totalFinalSettlementCash += finalCash
+                        totalProfitLoss += profitLoss
+                    } else {
+                        // 没有价格，只计算权利金
+                        let finalCash = marginCost + premium
+                        totalFinalSettlementCash += finalCash
+                        totalProfitLoss += premium
+                    }
                 }
             }
             
+            let finalSettlementCash = totalFinalSettlementCash
+            
+            let profitLoss = totalProfitLoss
             let profitLossPercentage = totalInvestment > 0 ? (profitLoss / totalInvestment) * 100 : 0
             
             // 计算权利金百分比
@@ -232,7 +225,7 @@ struct PortfolioView: View {
             return PortfolioSummary(
                 symbol: symbol,
                 totalInvestment: totalInvestment,
-                cashWhenDue: totalCashWhenDue,
+                finalSettlementCash: finalSettlementCash,
                 profitLoss: profitLoss,
                 profitLossPercentage: profitLossPercentage,
                 premium: totalPremium,
@@ -265,8 +258,8 @@ struct PortfolioView: View {
                 comparison = summary1.symbol.localizedCompare(summary2.symbol) == .orderedAscending
             case .investment:
                 comparison = summary1.totalInvestment < summary2.totalInvestment
-            case .cashWhenDue:
-                comparison = summary1.cashWhenDue < summary2.cashWhenDue
+            case .finalSettlementCash:
+                comparison = summary1.finalSettlementCash < summary2.finalSettlementCash
             case .profitLoss:
                 comparison = summary1.profitLoss < summary2.profitLoss
             case .profitLossPercentage:
@@ -287,8 +280,8 @@ struct PortfolioView: View {
         portfolioSummaries.reduce(0.0) { $0 + $1.totalInvestment }
     }
     
-    private var totalCashWhenDue: Double {
-        portfolioSummaries.reduce(0.0) { $0 + $1.cashWhenDue }
+    private var totalFinalSettlementCash: Double {
+        portfolioSummaries.reduce(0.0) { $0 + $1.finalSettlementCash }
     }
     
     private var totalProfitLoss: Double {
@@ -492,10 +485,10 @@ struct PortfolioView: View {
                         .frame(height: 30)
                     
                     VStack(spacing: 4) {
-                        Text("Cash When Due")
+                        Text("Final Settlement Cash")
                             .font(.caption)
                             .foregroundStyle(.secondary)
-                        Text(formatPrice(totalCashWhenDue))
+                        Text(formatPrice(totalFinalSettlementCash))
                             .font(.subheadline.weight(.semibold))
                             .foregroundStyle(.blue)
                     }
@@ -542,9 +535,9 @@ struct PortfolioView: View {
                 }
                 
                 Button {
-                    updateSort(to: .cashWhenDue)
+                    updateSort(to: .finalSettlementCash)
                 } label: {
-                    Label("Cash When Due", systemImage: sortField == .cashWhenDue ? "checkmark" : "")
+                    Label("Final Settlement Cash", systemImage: sortField == .finalSettlementCash ? "checkmark" : "")
                 }
                 
                 Button {
@@ -617,7 +610,7 @@ struct PortfolioView: View {
 enum PortfolioSortField {
     case symbol
     case investment
-    case cashWhenDue
+    case finalSettlementCash
     case profitLoss
     case profitLossPercentage
     case premium
@@ -628,7 +621,7 @@ enum PortfolioSortField {
         switch self {
         case .symbol: return "Symbol"
         case .investment: return "Investment"
-        case .cashWhenDue: return "Cash When Due"
+        case .finalSettlementCash: return "Final Settlement Cash"
         case .profitLoss: return "Profit/Loss"
         case .profitLossPercentage: return "Profit/Loss %"
         case .premium: return "Premium"
@@ -719,7 +712,7 @@ struct PortfolioCard: View {
                 HStack(spacing: 0) {
                     InfoCell(title: "Investment", value: formatPrice(summary.totalInvestment))
                     Divider()
-                    InfoCell(title: "Cash When Due", value: formatPrice(summary.cashWhenDue), color: .blue)
+                    InfoCell(title: "Final Settlement Cash", value: formatPrice(summary.finalSettlementCash), color: .blue)
                 }
                 
                 Divider()
@@ -825,7 +818,7 @@ struct PortfolioDetailView: View {
                         Divider()
                         DetailRow(title: "Premium Received", value: formatPrice(summary.premium), color: .green)
                         Divider()
-                        DetailRow(title: "Cash When Due", value: formatPrice(summary.cashWhenDue), color: .blue)
+                        DetailRow(title: "Final Settlement Cash", value: formatPrice(summary.finalSettlementCash), color: .blue)
                         Divider()
                         DetailRow(title: "Net Profit/Loss", value: formatPrice(summary.profitLoss), color: summary.profitLoss >= 0 ? .green : .red)
                     }

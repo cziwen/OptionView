@@ -9,7 +9,7 @@ import SwiftUI
 import SwiftData
 
 @main
-struct PositionManagerApp: App {
+struct OptionViewApp: App {
     var sharedModelContainer: ModelContainer = {
         let schema = Schema([
             Item.self,
@@ -118,95 +118,10 @@ struct PositionManagerApp: App {
             exerciseStatus: .no
         )
         
-        // MSFT 策略
-        let msft1 = OptionStrategy(
-            symbol: "MSFT",
-            optionType: .coveredCall,
-            expirationDate: twoWeeks,
-            strikePrice: 380.0,
-            optionPrice: 8.75,
-            averagePricePerShare: 370.0,
-            contracts: 4,
-            exerciseStatus: .yes
-        )
-        
-        let msft2 = OptionStrategy(
-            symbol: "MSFT",
-            optionType: .cashSecuredPut,
-            expirationDate: oneMonth,
-            strikePrice: 360.0,
-            optionPrice: 7.50,
-            averagePricePerShare: 370.0,
-            contracts: 2,
-            exerciseStatus: .unknown
-        )
-        
-        // NVDA 策略
-        let nvda1 = OptionStrategy(
-            symbol: "NVDA",
-            optionType: .nakedCall,
-            expirationDate: oneMonth,
-            strikePrice: 500.0,
-            optionPrice: 25.00,
-            averagePricePerShare: 480.0,
-            contracts: 1,
-            exerciseStatus: .yes
-        )
-        
-        let nvda2 = OptionStrategy(
-            symbol: "NVDA",
-            optionType: .nakedCall,
-            expirationDate: twoMonths,
-            strikePrice: 520.0,
-            optionPrice: 28.50,
-            averagePricePerShare: 480.0,
-            contracts: 2,
-            exerciseStatus: .no
-        )
-        
-        // GOOGL 策略
-        let googl1 = OptionStrategy(
-            symbol: "GOOGL",
-            optionType: .cashSecuredPut,
-            expirationDate: nextWeek,
-            strikePrice: 140.0,
-            optionPrice: 4.50,
-            averagePricePerShare: 145.0,
-            contracts: 5,
-            exerciseStatus: .no
-        )
-        
-        let googl2 = OptionStrategy(
-            symbol: "GOOGL",
-            optionType: .coveredCall,
-            expirationDate: twoWeeks,
-            strikePrice: 150.0,
-            optionPrice: 5.25,
-            averagePricePerShare: 145.0,
-            contracts: 3,
-            exerciseStatus: .yes
-        )
-        
-        // META 策略
-        let meta1 = OptionStrategy(
-            symbol: "META",
-            optionType: .nakedCall,
-            expirationDate: twoWeeks,
-            strikePrice: 480.0,
-            optionPrice: 18.00,
-            averagePricePerShare: 465.0,
-            contracts: 2,
-            exerciseStatus: .yes
-        )
-        
         // 插入所有策略
         let strategies = [
             aapl1, aapl2, aapl3,
-            tsla1, tsla2,
-            msft1, msft2,
-            nvda1, nvda2,
-            googl1, googl2,
-            meta1
+            tsla1, tsla2
         ]
         
         for strategy in strategies {
