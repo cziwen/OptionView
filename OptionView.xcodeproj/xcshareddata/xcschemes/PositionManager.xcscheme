@@ -97,7 +97,7 @@
    </AnalyzeAction>
    <ArchiveAction
       buildConfiguration = "Release"
-      customArchiveName = "PositionManager"
+      customArchiveName = "OptionView"
       revealArchiveInOrganizer = "YES">
    </ArchiveAction>
 </Scheme>
