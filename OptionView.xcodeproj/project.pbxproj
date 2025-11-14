@@ -24,25 +24,25 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
-		7ABEF10B2EBADC450021023B /* PositionManager.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = PositionManager.app; sourceTree = BUILT_PRODUCTS_DIR; };
-		7ABEF11D2EBADC460021023B /* PositionManagerTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = PositionManagerTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
-		7ABEF1272EBADC470021023B /* PositionManagerUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = PositionManagerUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+		7ABEF10B2EBADC450021023B /* OptionView.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = OptionView.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		7ABEF11D2EBADC460021023B /* OptionViewTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = OptionViewTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+		7ABEF1272EBADC470021023B /* OptionViewUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = OptionViewUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedRootGroup section */
-		7ABEF10D2EBADC450021023B /* PositionManager */ = {
+		7ABEF10D2EBADC450021023B /* OptionView */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
-			path = PositionManager;
+			path = OptionView;
 			sourceTree = "<group>";
 		};
-		7ABEF1202EBADC460021023B /* PositionManagerTests */ = {
+		7ABEF1202EBADC460021023B /* OptionViewTests */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
-			path = PositionManagerTests;
+			path = OptionViewTests;
 			sourceTree = "<group>";
 		};
-		7ABEF12A2EBADC470021023B /* PositionManagerUITests */ = {
+		7ABEF12A2EBADC470021023B /* OptionViewUITests */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
-			path = PositionManagerUITests;
+			path = OptionViewUITests;
 			sourceTree = "<group>";
 		};
 /* End PBXFileSystemSynchronizedRootGroup section */
@@ -75,9 +75,9 @@
 		7ABEF1022EBADC450021023B = {
 			isa = PBXGroup;
 			children = (
-				7ABEF10D2EBADC450021023B /* PositionManager */,
-				7ABEF1202EBADC460021023B /* PositionManagerTests */,
-				7ABEF12A2EBADC470021023B /* PositionManagerUITests */,
+				7ABEF10D2EBADC450021023B /* OptionView */,
+				7ABEF1202EBADC460021023B /* OptionViewTests */,
+				7ABEF12A2EBADC470021023B /* OptionViewUITests */,
 				7ABEF10C2EBADC450021023B /* Products */,
 			);
 			sourceTree = "<group>";
@@ -85,9 +85,9 @@
 		7ABEF10C2EBADC450021023B /* Products */ = {
 			isa = PBXGroup;
 			children = (
-				7ABEF10B2EBADC450021023B /* PositionManager.app */,
-				7ABEF11D2EBADC460021023B /* PositionManagerTests.xctest */,
-				7ABEF1272EBADC470021023B /* PositionManagerUITests.xctest */,
+				7ABEF10B2EBADC450021023B /* OptionView.app */,
+				7ABEF11D2EBADC460021023B /* OptionViewTests.xctest */,
+				7ABEF1272EBADC470021023B /* OptionViewUITests.xctest */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -95,9 +95,9 @@
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
-		7ABEF10A2EBADC450021023B /* PositionManager */ = {
+		7ABEF10A2EBADC450021023B /* OptionView */ = {
 			isa = PBXNativeTarget;
-			buildConfigurationList = 7ABEF1312EBADC470021023B /* Build configuration list for PBXNativeTarget "PositionManager" */;
+			buildConfigurationList = 7ABEF1312EBADC470021023B /* Build configuration list for PBXNativeTarget "OptionView" */;
 			buildPhases = (
 				7ABEF1072EBADC450021023B /* Sources */,
 				7ABEF1082EBADC450021023B /* Frameworks */,
@@ -108,18 +108,18 @@
 			dependencies = (
 			);
 			fileSystemSynchronizedGroups = (
-				7ABEF10D2EBADC450021023B /* PositionManager */,
+				7ABEF10D2EBADC450021023B /* OptionView */,
 			);
-			name = PositionManager;
+			name = OptionView;
 			packageProductDependencies = (
 			);
 			productName = PositionManager;
-			productReference = 7ABEF10B2EBADC450021023B /* PositionManager.app */;
+			productReference = 7ABEF10B2EBADC450021023B /* OptionView.app */;
 			productType = "com.apple.product-type.application";
 		};
-		7ABEF11C2EBADC460021023B /* PositionManagerTests */ = {
+		7ABEF11C2EBADC460021023B /* OptionViewTests */ = {
 			isa = PBXNativeTarget;
-			buildConfigurationList = 7ABEF1342EBADC470021023B /* Build configuration list for PBXNativeTarget "PositionManagerTests" */;
+			buildConfigurationList = 7ABEF1342EBADC470021023B /* Build configuration list for PBXNativeTarget "OptionViewTests" */;
 			buildPhases = (
 				7ABEF1192EBADC460021023B /* Sources */,
 				7ABEF11A2EBADC460021023B /* Frameworks */,
@@ -131,18 +131,18 @@
 				7ABEF11F2EBADC460021023B /* PBXTargetDependency */,
 			);
 			fileSystemSynchronizedGroups = (
-				7ABEF1202EBADC460021023B /* PositionManagerTests */,
+				7ABEF1202EBADC460021023B /* OptionViewTests */,
 			);
-			name = PositionManagerTests;
+			name = OptionViewTests;
 			packageProductDependencies = (
 			);
 			productName = PositionManagerTests;
-			productReference = 7ABEF11D2EBADC460021023B /* PositionManagerTests.xctest */;
+			productReference = 7ABEF11D2EBADC460021023B /* OptionViewTests.xctest */;
 			productType = "com.apple.product-type.bundle.unit-test";
 		};
-		7ABEF1262EBADC470021023B /* PositionManagerUITests */ = {
+		7ABEF1262EBADC470021023B /* OptionViewUITests */ = {
 			isa = PBXNativeTarget;
-			buildConfigurationList = 7ABEF1372EBADC470021023B /* Build configuration list for PBXNativeTarget "PositionManagerUITests" */;
+			buildConfigurationList = 7ABEF1372EBADC470021023B /* Build configuration list for PBXNativeTarget "OptionViewUITests" */;
 			buildPhases = (
 				7ABEF1232EBADC470021023B /* Sources */,
 				7ABEF1242EBADC470021023B /* Frameworks */,
@@ -154,13 +154,13 @@
 				7ABEF1292EBADC470021023B /* PBXTargetDependency */,
 			);
 			fileSystemSynchronizedGroups = (
-				7ABEF12A2EBADC470021023B /* PositionManagerUITests */,
+				7ABEF12A2EBADC470021023B /* OptionViewUITests */,
 			);
-			name = PositionManagerUITests;
+			name = OptionViewUITests;
 			packageProductDependencies = (
 			);
 			productName = PositionManagerUITests;
-			productReference = 7ABEF1272EBADC470021023B /* PositionManagerUITests.xctest */;
+			productReference = 7ABEF1272EBADC470021023B /* OptionViewUITests.xctest */;
 			productType = "com.apple.product-type.bundle.ui-testing";
 		};
 /* End PBXNativeTarget section */
@@ -171,7 +171,7 @@
 			attributes = {
 				BuildIndependentTargetsInParallel = 1;
 				LastSwiftUpdateCheck = 1600;
-				LastUpgradeCheck = 1600;
+				LastUpgradeCheck = 2610;
 				TargetAttributes = {
 					7ABEF10A2EBADC450021023B = {
 						CreatedOnToolsVersion = 16.0;
@@ -186,7 +186,7 @@
 					};
 				};
 			};
-			buildConfigurationList = 7ABEF1062EBADC450021023B /* Build configuration list for PBXProject "PositionManager" */;
+			buildConfigurationList = 7ABEF1062EBADC450021023B /* Build configuration list for PBXProject "OptionView" */;
 			developmentRegion = en;
 			hasScannedForEncodings = 0;
 			knownRegions = (
@@ -200,9 +200,9 @@
 			projectDirPath = "";
 			projectRoot = "";
 			targets = (
-				7ABEF10A2EBADC450021023B /* PositionManager */,
-				7ABEF11C2EBADC460021023B /* PositionManagerTests */,
-				7ABEF1262EBADC470021023B /* PositionManagerUITests */,
+				7ABEF10A2EBADC450021023B /* OptionView */,
+				7ABEF11C2EBADC460021023B /* OptionViewTests */,
+				7ABEF1262EBADC470021023B /* OptionViewUITests */,
 			);
 		};
 /* End PBXProject section */
@@ -258,12 +258,12 @@
 /* Begin PBXTargetDependency section */
 		7ABEF11F2EBADC460021023B /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
-			target = 7ABEF10A2EBADC450021023B /* PositionManager */;
+			target = 7ABEF10A2EBADC450021023B /* OptionView */;
 			targetProxy = 7ABEF11E2EBADC460021023B /* PBXContainerItemProxy */;
 		};
 		7ABEF1292EBADC470021023B /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
-			target = 7ABEF10A2EBADC450021023B /* PositionManager */;
+			target = 7ABEF10A2EBADC450021023B /* OptionView */;
 			targetProxy = 7ABEF1282EBADC470021023B /* PBXContainerItemProxy */;
 		};
 /* End PBXTargetDependency section */
@@ -304,6 +304,7 @@
 				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
 				COPY_PHASE_STRIP = NO;
 				DEBUG_INFORMATION_FORMAT = dwarf;
+				DEVELOPMENT_TEAM = 6536FF4HWR;
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
 				ENABLE_TESTABILITY = YES;
 				ENABLE_USER_SCRIPT_SANDBOXING = YES;
@@ -327,6 +328,7 @@
 				MTL_FAST_MATH = YES;
 				ONLY_ACTIVE_ARCH = YES;
 				SDKROOT = iphoneos;
+				STRING_CATALOG_GENERATE_SYMBOLS = YES;
 				SWIFT_ACTIVE_COMPILATION_CONDITIONS = "DEBUG $(inherited)";
 				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
 			};
@@ -367,6 +369,7 @@
 				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
 				COPY_PHASE_STRIP = NO;
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				DEVELOPMENT_TEAM = 6536FF4HWR;
 				ENABLE_NS_ASSERTIONS = NO;
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
 				ENABLE_USER_SCRIPT_SANDBOXING = YES;
@@ -383,6 +386,7 @@
 				MTL_ENABLE_DEBUG_INFO = NO;
 				MTL_FAST_MATH = YES;
 				SDKROOT = iphoneos;
+				STRING_CATALOG_GENERATE_SYMBOLS = YES;
 				SWIFT_COMPILATION_MODE = wholemodule;
 				VALIDATE_PRODUCT = YES;
 			};
@@ -396,7 +400,6 @@
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_ASSET_PATHS = "\"PositionManager/Preview Content\"";
-				DEVELOPMENT_TEAM = 6536FF4HWR;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_KEY_CFBundleDisplayName = OptionView;
@@ -426,7 +429,6 @@
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_ASSET_PATHS = "\"PositionManager/Preview Content\"";
-				DEVELOPMENT_TEAM = 6536FF4HWR;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_KEY_CFBundleDisplayName = OptionView;
@@ -454,7 +456,6 @@
 				BUNDLE_LOADER = "$(TEST_HOST)";
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
-				DEVELOPMENT_TEAM = 6536FF4HWR;
 				GENERATE_INFOPLIST_FILE = YES;
 				IPHONEOS_DEPLOYMENT_TARGET = 18.0;
 				MARKETING_VERSION = 1.0;
@@ -463,7 +464,7 @@
 				SWIFT_EMIT_LOC_STRINGS = NO;
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = "1,2";
-				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/PositionManager.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/PositionManager";
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/OptionView.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/OptionView";
 			};
 			name = Debug;
 		};
@@ -473,7 +474,6 @@
 				BUNDLE_LOADER = "$(TEST_HOST)";
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
-				DEVELOPMENT_TEAM = 6536FF4HWR;
 				GENERATE_INFOPLIST_FILE = YES;
 				IPHONEOS_DEPLOYMENT_TARGET = 18.0;
 				MARKETING_VERSION = 1.0;
@@ -482,7 +482,7 @@
 				SWIFT_EMIT_LOC_STRINGS = NO;
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = "1,2";
-				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/PositionManager.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/PositionManager";
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/OptionView.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/OptionView";
 			};
 			name = Release;
 		};
@@ -491,7 +491,6 @@
 			buildSettings = {
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
-				DEVELOPMENT_TEAM = 6536FF4HWR;
 				GENERATE_INFOPLIST_FILE = YES;
 				MARKETING_VERSION = 1.0;
 				PRODUCT_BUNDLE_IDENTIFIER = ziwen.PositionManagerUITests;
@@ -508,7 +507,6 @@
 			buildSettings = {
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
-				DEVELOPMENT_TEAM = 6536FF4HWR;
 				GENERATE_INFOPLIST_FILE = YES;
 				MARKETING_VERSION = 1.0;
 				PRODUCT_BUNDLE_IDENTIFIER = ziwen.PositionManagerUITests;
@@ -523,7 +521,7 @@
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
-		7ABEF1062EBADC450021023B /* Build configuration list for PBXProject "PositionManager" */ = {
+		7ABEF1062EBADC450021023B /* Build configuration list for PBXProject "OptionView" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				7ABEF12F2EBADC470021023B /* Debug */,
@@ -532,7 +530,7 @@
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
 		};
-		7ABEF1312EBADC470021023B /* Build configuration list for PBXNativeTarget "PositionManager" */ = {
+		7ABEF1312EBADC470021023B /* Build configuration list for PBXNativeTarget "OptionView" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				7ABEF1322EBADC470021023B /* Debug */,
@@ -541,7 +539,7 @@
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
 		};
-		7ABEF1342EBADC470021023B /* Build configuration list for PBXNativeTarget "PositionManagerTests" */ = {
+		7ABEF1342EBADC470021023B /* Build configuration list for PBXNativeTarget "OptionViewTests" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				7ABEF1352EBADC470021023B /* Debug */,
@@ -550,7 +548,7 @@
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
 		};
-		7ABEF1372EBADC470021023B /* Build configuration list for PBXNativeTarget "PositionManagerUITests" */ = {
+		7ABEF1372EBADC470021023B /* Build configuration list for PBXNativeTarget "OptionViewUITests" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				7ABEF1382EBADC470021023B /* Debug */,

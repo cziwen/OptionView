@@ -16,9 +16,9 @@
             <BuildableReference
                BuildableIdentifier = "primary"
                BlueprintIdentifier = "7ABEF10A2EBADC450021023B"
-               BuildableName = "PositionManager.app"
-               BlueprintName = "PositionManager"
-               ReferencedContainer = "container:PositionManager.xcodeproj">
+               BuildableName = "OptionView.app"
+               BlueprintName = "OptionView"
+               ReferencedContainer = "container:OptionView.xcodeproj">
             </BuildableReference>
          </BuildActionEntry>
       </BuildActionEntries>
@@ -36,9 +36,9 @@
             <BuildableReference
                BuildableIdentifier = "primary"
                BlueprintIdentifier = "7ABEF11C2EBADC460021023B"
-               BuildableName = "PositionManagerTests.xctest"
-               BlueprintName = "PositionManagerTests"
-               ReferencedContainer = "container:PositionManager.xcodeproj">
+               BuildableName = "OptionViewTests.xctest"
+               BlueprintName = "OptionViewTests"
+               ReferencedContainer = "container:OptionView.xcodeproj">
             </BuildableReference>
          </TestableReference>
          <TestableReference
@@ -47,9 +47,9 @@
             <BuildableReference
                BuildableIdentifier = "primary"
                BlueprintIdentifier = "7ABEF1262EBADC470021023B"
-               BuildableName = "PositionManagerUITests.xctest"
-               BlueprintName = "PositionManagerUITests"
-               ReferencedContainer = "container:PositionManager.xcodeproj">
+               BuildableName = "OptionViewUITests.xctest"
+               BlueprintName = "OptionViewUITests"
+               ReferencedContainer = "container:OptionView.xcodeproj">
             </BuildableReference>
          </TestableReference>
       </Testables>
@@ -69,9 +69,9 @@
          <BuildableReference
             BuildableIdentifier = "primary"
             BlueprintIdentifier = "7ABEF10A2EBADC450021023B"
-            BuildableName = "PositionManager.app"
-            BlueprintName = "PositionManager"
-            ReferencedContainer = "container:PositionManager.xcodeproj">
+            BuildableName = "OptionView.app"
+            BlueprintName = "OptionView"
+            ReferencedContainer = "container:OptionView.xcodeproj">
          </BuildableReference>
       </BuildableProductRunnable>
    </LaunchAction>
@@ -86,9 +86,9 @@
          <BuildableReference
             BuildableIdentifier = "primary"
             BlueprintIdentifier = "7ABEF10A2EBADC450021023B"
-            BuildableName = "PositionManager.app"
-            BlueprintName = "PositionManager"
-            ReferencedContainer = "container:PositionManager.xcodeproj">
+            BuildableName = "OptionView.app"
+            BlueprintName = "OptionView"
+            ReferencedContainer = "container:OptionView.xcodeproj">
          </BuildableReference>
       </BuildableProductRunnable>
    </ProfileAction>
