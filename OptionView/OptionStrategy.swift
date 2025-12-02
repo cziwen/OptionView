@@ -75,6 +75,54 @@ final class OptionStrategy {
             return 0
         }
     }
+    
+    /// 根据当前价格判断是否应该行权
+    /// 判断逻辑：ITM (In-The-Money) = 行权，OTM (Out-The-Money) = 不行权
+    /// - Parameter currentPrice: 当前市场价格
+    /// - Returns: true表示应该行权（ITM），false表示不应该行权（OTM）
+    func shouldExercise(at currentPrice: Double) -> Bool {
+        switch optionType {
+        case .coveredCall, .nakedCall, .buyCall:
+            // Call期权：当前价格 > 执行价 = ITM = 行权
+            return currentPrice > strikePrice
+            
+        case .cashSecuredPut, .nakedPut, .buyPut:
+            // Put期权：当前价格 < 执行价 = ITM = 行权
+            return currentPrice < strikePrice
+        }
+    }
+    
+    /// 根据当前价格更新行权状态和市场价格
+    /// - Parameter currentPrice: 当前市场价格
+    func updateExerciseStatusAndPrice(at currentPrice: Double) {
+        let shouldExercise = self.shouldExercise(at: currentPrice)
+        
+        if shouldExercise {
+            // ITM = 行权
+            self.exerciseStatus = .yes
+            // 清除未行权时的市场价格
+            self.currentMarketPrice = nil
+            // 根据策略类型决定存储位置
+            switch optionType {
+            case .coveredCall:
+                // Covered Call 被行权时不需要存储市场价格（已使用执行价）
+                self.exerciseMarketPrice = nil
+            case .cashSecuredPut, .nakedCall, .nakedPut:
+                // 这些策略被行权时需要存储行权时的市场价格
+                self.exerciseMarketPrice = currentPrice
+            case .buyCall, .buyPut:
+                // Buy Call/Put 被行权时也存储行权价格
+                self.exerciseMarketPrice = currentPrice
+            }
+        } else {
+            // OTM = 不行权
+            self.exerciseStatus = .no
+            // 清除行权时的市场价格
+            self.exerciseMarketPrice = nil
+            // 未行权时存储当前市场价格用于计算未实现盈亏
+            self.currentMarketPrice = currentPrice
+        }
+    }
 }
 
 // Option Type

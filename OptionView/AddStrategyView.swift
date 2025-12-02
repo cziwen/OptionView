@@ -24,21 +24,20 @@ struct AddStrategyView: View {
     @State private var marginCost: String = ""  // 新增：保证金成本
     @State private var contracts: String = ""
     @State private var exerciseStatus: ExerciseStatus = .unknown
-    @State private var marketPriceAtExercise: String = ""  // 统一：市场价格（用于所有需要市场价格的情况）
+    // 市场价格现在由系统自动获取，不再需要用户输入
     
     // 缺失的错误状态（用于保存前校验）
     @State private var strikePriceError: Bool = false
     @State private var optionPriceError: Bool = false
     @State private var avgPriceError: Bool = false
     @State private var marginCostError: Bool = false
-    @State private var marketPriceError: Bool = false  // 统一：市场价格验证
     @State private var contractsError: Bool = false
     
     // Focus states
     @FocusState private var focusedField: Field?
     
     enum Field {
-        case symbol, strikePrice, optionPrice, avgPrice, marginCost, marketPrice, contracts
+        case symbol, strikePrice, optionPrice, avgPrice, marginCost, contracts
     }
     
     var body: some View {
@@ -143,35 +142,6 @@ struct AddStrategyView: View {
                         }
                     }
                 }
-                
-                Section("Exercise Status") {
-                    Picker("Will Exercise", selection: $exerciseStatus) {
-                        ForEach(ExerciseStatus.allCases, id: \.self) { status in
-                            Text(status.displayName).tag(status)
-                        }
-                    }
-                    .pickerStyle(.segmented)
-                    
-                    // 根据不同策略类型和行权状态，显示市场价格输入框
-                    if shouldShowMarketPriceField {
-                        VStack(alignment: .leading, spacing: 4) {
-                            TextField("Market Price at Exercise", text: $marketPriceAtExercise)
-                                .keyboardType(.decimalPad)
-                                .focused($focusedField, equals: .marketPrice)
-                            
-                            if !marketPriceAtExercise.isEmpty && !marketPriceAtExercise.isValidPositiveNumber {
-                                Text("Please enter a valid positive number")
-                                    .font(.caption)
-                                    .foregroundStyle(.red)
-                            }
-                            
-                            // 根据不同情况显示不同的提示信息
-                            Text(marketPriceFieldHint)
-                                .font(.caption)
-                                .foregroundStyle(isMarketPriceRequired ? .orange : .secondary)
-                        }
-                    }
-                }
             }
             .navigationTitle(isEditMode ? "Edit Strategy" : "Add Strategy")
             .navigationBarTitleDisplayMode(.inline)
@@ -222,70 +192,8 @@ struct AddStrategyView: View {
         strategyToEdit != nil
     }
     
-    // 判断是否需要显示市场价格输入框
-    private var shouldShowMarketPriceField: Bool {
-        switch optionType {
-        case .coveredCall:
-            return exerciseStatus == .no  // Covered Call 未行权时需要当前市价
-        case .cashSecuredPut:
-            return exerciseStatus == .yes  // Cash-Secured Put 被行权时需要市场价格
-        case .nakedCall, .nakedPut:
-            return exerciseStatus == .yes  // Naked 策略仅在被行权时需要输入
-        case .buyCall, .buyPut:
-            return exerciseStatus == .no || exerciseStatus == .unknown  // Buy Call/Put 未行权或未知时需要市场价格（可选）
-        }
-    }
-    
-    // 判断市场价格是否为必填项
-    private var isMarketPriceRequired: Bool {
-        switch optionType {
-        case .coveredCall:
-            return exerciseStatus == .no  // Covered Call 未行权时必填
-        case .cashSecuredPut:
-            return exerciseStatus == .yes  // Cash-Secured Put 被行权时必填
-        case .nakedCall, .nakedPut:
-            return exerciseStatus == .yes  // Naked 策略仅在被行权时必填
-        case .buyCall, .buyPut:
-            return false  // Buy Call/Put 市场价格是可选的
-        }
-    }
-    
-    // 市场价格字段的提示信息
-    private var marketPriceFieldHint: String {
-        switch optionType {
-        case .coveredCall:
-            if exerciseStatus == .no {
-                return marketPriceAtExercise.isEmpty 
-                    ? "Required: Enter market price at exercise for P/L calculation"
-                    : "Market price for calculating unrealized P/L"
-            }
-        case .cashSecuredPut:
-            if exerciseStatus == .yes {
-                return marketPriceAtExercise.isEmpty
-                    ? "Required: Enter market price at exercise for P/L calculation"
-                    : "Market price when put was exercised"
-            }
-        case .nakedCall:
-            if exerciseStatus == .yes {
-                return marketPriceAtExercise.isEmpty
-                    ? "Required: Enter market price at exercise for P/L calculation"
-                    : "Market price when call was exercised (for calculating actual loss)"
-            }
-        case .nakedPut:
-            if exerciseStatus == .yes {
-                return marketPriceAtExercise.isEmpty
-                    ? "Required: Enter market price at exercise for P/L calculation"
-                    : "Market price when put was exercised (for calculating actual loss)"
-            }
-        case .buyCall, .buyPut:
-            if exerciseStatus == .no || exerciseStatus == .unknown {
-                return marketPriceAtExercise.isEmpty
-                    ? "Optional: Enter current market price to calculate unrealized P/L"
-                    : "Current market price for calculating unrealized P/L"
-            }
-        }
-        return ""
-    }
+    // 市场价格现在由系统自动获取，不再需要手动输入
+    // 以下方法已废弃，但保留以避免编译错误
     
     // 加载策略数据（编辑模式）
     private func loadStrategyData() {
@@ -298,18 +206,15 @@ struct AddStrategyView: View {
         optionPrice = String(format: "%.2f", strategy.optionPrice)
         averagePricePerShare = String(format: "%.2f", strategy.averagePricePerShare)
         contracts = String(strategy.contracts)
-        exerciseStatus = strategy.exerciseStatus
+        // 行权状态现在由系统自动判断，不再需要加载
+        exerciseStatus = strategy.exerciseStatus // 保留用于显示，但不允许用户修改
         
         // 加载保证金成本（如果有）
         if let margin = strategy.marginCost {
             marginCost = String(format: "%.2f", margin)
         }
         
-        // 根据策略类型和行权状态加载市场价格
-        // 优先使用 exerciseMarketPrice（被行权时的价格），否则使用 currentMarketPrice（当前价格）
-        if let marketPrice = strategy.exerciseMarketPrice ?? strategy.currentMarketPrice {
-            marketPriceAtExercise = String(format: "%.2f", marketPrice)
-        }
+        // 市场价格现在由系统自动获取，不再需要加载到输入框
     }
     
     // Validation functions
@@ -370,25 +275,10 @@ struct AddStrategyView: View {
         // Covered Call 需要验证股票均价
         if optionType == .coveredCall {
             let avgPriceValid = averagePricePerShare.isValidPositiveNumber
-            
-            // 如果 exercise 状态为 No，还需要验证市场价格（必填）
-            if exerciseStatus == .no {
-                return basicValid && avgPriceValid && marketPriceAtExercise.isValidPositiveNumber
-            }
-            
             return basicValid && avgPriceValid
         }
         
-        // Cash-Secured Put 被行权时（Yes），需要验证市场价格（必填）
-        if optionType == .cashSecuredPut && exerciseStatus == .yes {
-            return basicValid && marketPriceAtExercise.isValidPositiveNumber
-        }
-        
-        // Naked Call/Put 仅在被行权时（Yes）需要市场价格（必填）
-        if (optionType == .nakedCall || optionType == .nakedPut) && exerciseStatus == .yes {
-            return basicValid && marketPriceAtExercise.isValidPositiveNumber
-        }
-        
+        // 市场价格现在由系统自动获取，不再需要验证
         // 其他策略类型不需要额外验证
         return basicValid
     }
@@ -438,37 +328,15 @@ struct AddStrategyView: View {
             marginCostValue = nil
         }
         
-        // 处理市场价格
-        // 根据策略类型和行权状态，决定将价格存储到 exerciseMarketPrice 还是 currentMarketPrice
+        // 市场价格现在由系统自动从Yahoo Finance获取和更新
+        // 保存时保留现有的市场价格（如果有），但不从用户输入中获取
         var exerciseMarketPriceValue: Double? = nil
         var currentMarketPriceValue: Double? = nil
         
-        if !marketPriceAtExercise.isEmpty, let marketPrice = Double(marketPriceAtExercise) {
-            switch optionType {
-            case .coveredCall:
-                if exerciseStatus == .no {
-                    // Covered Call 未行权：存储为 currentMarketPrice
-                    currentMarketPriceValue = marketPrice
-                }
-            case .cashSecuredPut:
-                if exerciseStatus == .yes {
-                    // Cash-Secured Put 被行权：存储为 exerciseMarketPrice
-                    exerciseMarketPriceValue = marketPrice
-                }
-            case .nakedCall, .nakedPut:
-                if exerciseStatus == .yes {
-                    // Naked 策略被行权：存储为 exerciseMarketPrice
-                    exerciseMarketPriceValue = marketPrice
-                } else if exerciseStatus == .no {
-                    // Naked 策略未行权：存储为 currentMarketPrice
-                    currentMarketPriceValue = marketPrice
-                }
-            case .buyCall, .buyPut:
-                if exerciseStatus == .no || exerciseStatus == .unknown {
-                    // Buy Call/Put 未行权或未知：存储为 currentMarketPrice（用于计算未实现盈亏）
-                    currentMarketPriceValue = marketPrice
-                }
-            }
+        // 如果是编辑模式，保留现有的市场价格
+        if let existingStrategy = strategyToEdit {
+            exerciseMarketPriceValue = existingStrategy.exerciseMarketPrice
+            currentMarketPriceValue = existingStrategy.currentMarketPrice
         }
         
         if let existingStrategy = strategyToEdit {
@@ -479,12 +347,14 @@ struct AddStrategyView: View {
             existingStrategy.optionPrice = optionPriceValue
             existingStrategy.averagePricePerShare = avgPriceValue
             existingStrategy.contracts = contractsValue
-            existingStrategy.exerciseStatus = exerciseStatus
+            // 行权状态现在由系统自动判断和更新，不再从用户输入中获取
+            // 保留现有的行权状态，系统会在价格更新时自动更新
             existingStrategy.marginCost = marginCostValue
             existingStrategy.exerciseMarketPrice = exerciseMarketPriceValue
             existingStrategy.currentMarketPrice = currentMarketPriceValue
         } else {
             // 添加模式：创建新策略
+            // 新策略初始状态设为 unknown，系统会在价格更新时自动判断
             let newStrategy = OptionStrategy(
                 symbol: symbol,
                 optionType: optionType,
@@ -493,7 +363,7 @@ struct AddStrategyView: View {
                 optionPrice: optionPriceValue,
                 averagePricePerShare: avgPriceValue,
                 contracts: contractsValue,
-                exerciseStatus: exerciseStatus,
+                exerciseStatus: .unknown, // 初始状态设为 unknown，系统会自动更新
                 marginCost: marginCostValue,
                 exerciseMarketPrice: exerciseMarketPriceValue,
                 currentMarketPrice: currentMarketPriceValue

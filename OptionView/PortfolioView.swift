@@ -29,6 +29,7 @@ struct PortfolioSummary: Identifiable {
 struct PortfolioView: View {
     @Environment(\.modelContext) private var modelContext
     @Query private var allStrategies: [OptionStrategy]
+    @ObservedObject private var priceUpdateManager = PriceUpdateManager.shared
     
     @State private var searchText: String = ""
     @State private var sortField: PortfolioSortField = .symbol
@@ -439,6 +440,13 @@ struct PortfolioView: View {
                 }
             }
             .navigationBarTitleDisplayMode(.inline)
+            .onAppear {
+                // 确保价格更新服务正在运行
+                let symbols = Array(Set(allStrategies.map { $0.symbol }))
+                if !symbols.isEmpty {
+                    priceUpdateManager.startUpdating(symbols: symbols)
+                }
+            }
         }
     }
     
@@ -715,7 +723,13 @@ struct InfoCell: View {
 // MARK: - Portfolio Card
 struct PortfolioCard: View {
     let summary: PortfolioSummary
+    @ObservedObject private var priceUpdateManager = PriceUpdateManager.shared
     @State private var showingDetail = false
+    
+    // 获取当前标的价格
+    private var currentPrice: Double? {
+        priceUpdateManager.getPrice(for: summary.symbol)
+    }
     
     var body: some View {
         VStack(spacing: 0) {
@@ -741,6 +755,18 @@ struct PortfolioCard: View {
                     Text("\(summary.strategies.count) \(summary.strategies.count == 1 ? "Strategy" : "Strategies")")
                         .font(.subheadline)
                         .foregroundStyle(.secondary)
+                    
+                    // 显示当前标的价格
+                    if let price = currentPrice {
+                        HStack(spacing: 4) {
+                            Text("Current Price:")
+                                .font(.caption)
+                                .foregroundStyle(.secondary)
+                            Text(formatPrice(price))
+                                .font(.caption.weight(.semibold))
+                                .foregroundStyle(.blue)
+                        }
+                    }
                 }
                 
                 Spacer()
@@ -780,9 +806,13 @@ struct PortfolioCard: View {
                 
                 Divider()
                 
-                // 第三行：Portfolio Diversity
+                // 第三行：Portfolio Diversity 和 当前价格
                 HStack(spacing: 0) {
                     InfoCell(title: "Portfolio Diversity", value: formatPercentage(summary.portfolioDiversity))
+                    if let price = currentPrice {
+                        Divider()
+                        InfoCell(title: "Current Price", value: formatPrice(price), color: .blue)
+                    }
                 }
             }
         }
