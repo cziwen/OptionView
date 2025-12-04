@@ -32,6 +32,7 @@ enum SortOrder {
 struct MyStrategyView: View {
     @Environment(\.modelContext) private var modelContext
     @Query private var allStrategies: [OptionStrategy]
+    @ObservedObject private var priceUpdateManager = PriceUpdateManager.shared
     
     @State private var showingAddSheet = false
     @State private var sortField: SortField = .symbol
@@ -175,6 +176,24 @@ struct MyStrategyView: View {
                     strategyToEdit = nil
                 }
             }
+            .onChange(of: priceUpdateManager.priceCache) { oldValue, newValue in
+                // 当价格更新时，自动更新所有策略的行权状态和价格
+                updateStrategiesWithLatestPrices()
+            }
+            .onChange(of: allStrategies.count) { oldValue, newValue in
+                // 当策略列表变化时（添加或删除），更新价格服务的symbol列表
+                let symbols = Array(Set(allStrategies.map { $0.symbol }))
+                if !symbols.isEmpty {
+                    priceUpdateManager.startUpdating(symbols: symbols)
+                }
+            }
+            .onAppear {
+                // 视图出现时，确保价格更新服务正在运行
+                let symbols = Array(Set(allStrategies.map { $0.symbol }))
+                if !symbols.isEmpty {
+                    priceUpdateManager.startUpdating(symbols: symbols)
+                }
+            }
             .alert(
                 "Delete Option Strategy",
                 isPresented: $showingDeleteConfirmation,
@@ -188,6 +207,29 @@ struct MyStrategyView: View {
                 }
             } message: { strategy in
                 Text("Are you sure you want to delete the \(strategy.optionType.displayName) strategy for \(strategy.symbol)?")
+            }
+        }
+    }
+    
+    /// 使用最新的价格更新所有策略的行权状态和价格
+    private func updateStrategiesWithLatestPrices() {
+        var hasChanges = false
+        
+        for strategy in allStrategies {
+            if let currentPrice = priceUpdateManager.getPrice(for: strategy.symbol) {
+                // 使用策略的更新方法自动判断行权状态并更新价格
+                strategy.updateExerciseStatusAndPrice(at: currentPrice)
+                hasChanges = true
+            }
+        }
+        
+        // 如果有更新，保存到数据库
+        if hasChanges {
+            do {
+                try modelContext.save()
+                print("✅ 已更新所有策略的行权状态和价格")
+            } catch {
+                print("❌ 保存策略更新失败: \(error)")
             }
         }
     }
